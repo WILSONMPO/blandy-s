@@ -1,9 +1,29 @@
-import React from "react";
-import { POSTS } from "../mock";
+import React, { useEffect, useState } from "react";
+import { POSTS as FALLBACK } from "../mock";
 import { ArrowUpRight } from "lucide-react";
+import { fetchPosts } from "../api";
 
 const LatestPosts = () => {
-  const [hero, ...rest] = POSTS;
+  const [posts, setPosts] = useState(FALLBACK);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchPosts({ limit: 20 })
+      .then((data) => {
+        if (!mounted || !Array.isArray(data)) return;
+        // Exclude featured hero from grid; keep only non-featured and non-editor's picks for latest list
+        const filtered = data.filter((p) => !p.featured && !p.editorsPick);
+        if (filtered.length) setPosts(filtered);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (!posts.length) return null;
+  const [hero, ...rest] = posts;
+
   return (
     <section id="latest" className="max-w-[1400px] mx-auto px-6 md:px-10 py-20 md:py-28">
       <div className="flex items-end justify-between mb-12 md:mb-16">
@@ -18,7 +38,6 @@ const LatestPosts = () => {
         </a>
       </div>
 
-      {/* Featured big card */}
       <a href="#" className="grid md:grid-cols-12 gap-8 md:gap-12 group">
         <div className="md:col-span-7 zoom-wrap aspect-[16/10] bg-[var(--paper-2)]">
           <img src={hero.cover} alt={hero.title} className="w-full h-full object-cover" />
@@ -45,10 +64,9 @@ const LatestPosts = () => {
 
       <div className="rule my-16" />
 
-      {/* Grid */}
       <div className="grid md:grid-cols-3 gap-10 md:gap-12">
-        {rest.map((post, i) => (
-          <a href="#" key={post.id} className="group flex flex-col">
+        {rest.map((post) => (
+          <a href="#" key={post.id || post.slug} className="group flex flex-col">
             <div className="zoom-wrap aspect-[4/5] bg-[var(--paper-2)] mb-6">
               <img src={post.cover} alt={post.title} className="w-full h-full object-cover" />
             </div>

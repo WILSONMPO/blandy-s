@@ -1,12 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { FEATURED } from "../mock";
+import { FEATURED as FALLBACK } from "../mock";
+import { fetchFeatured } from "../api";
 
 const Hero = () => {
+  const [featured, setFeatured] = useState(FALLBACK);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchFeatured()
+      .then((data) => {
+        if (mounted && data) setFeatured(data);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Split title into lines around the second word if possible, else single line
+  const titleWords = (featured.title || "").split(" ");
+  const mid = Math.ceil(titleWords.length / 2);
+  const line1 = titleWords.slice(0, mid).join(" ");
+  const line2 = titleWords.slice(mid).join(" ");
+
   return (
     <section className="relative overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6 md:px-10 pt-10 md:pt-16 pb-16 md:pb-24">
-        {/* Issue meta */}
         <div className="flex items-center justify-between mb-8 md:mb-12">
           <div className="flex items-center gap-4 text-[11px] tracking-[0.3em] uppercase text-[var(--muted)]">
             <span>Issue No. 07</span>
@@ -19,26 +39,21 @@ const Hero = () => {
         </div>
 
         <div className="grid md:grid-cols-12 gap-8 md:gap-12 items-end">
-          {/* Left: type */}
           <div className="md:col-span-6 rise">
             <p className="text-[11px] tracking-[0.35em] uppercase text-[var(--accent)] mb-6">
-              {FEATURED.category} · Featured Essay
+              {featured.category} · Featured Essay
             </p>
             <h1 className="font-serif text-[54px] leading-[0.98] md:text-[104px] md:leading-[0.95] tracking-[-0.02em] text-[var(--ink)]">
-              The Quiet
+              {line1}
               <br />
-              <em className="italic text-[var(--accent)] font-normal">Revolution</em>
-              <br />
-              of Choosing
-              <br />
-              Yourself.
+              <em className="italic text-[var(--accent)] font-normal">{line2}</em>
             </h1>
             <p className="font-serif text-lg md:text-xl leading-relaxed text-[var(--ink-2)] max-w-xl mt-8">
-              {FEATURED.dek}
+              {featured.dek || featured.excerpt}
             </p>
             <div className="flex items-center gap-6 mt-10">
               <a
-                href="#featured"
+                href="#latest"
                 className="group inline-flex items-center gap-3 text-xs tracking-[0.3em] uppercase text-[var(--ink)]"
               >
                 <span className="link-underline">Read the essay</span>
@@ -49,19 +64,18 @@ const Hero = () => {
                 />
               </a>
               <div className="text-[11px] tracking-[0.25em] uppercase text-[var(--muted)] flex items-center gap-2">
-                <span>{FEATURED.readTime}</span>
+                <span>{featured.readTime}</span>
                 <span className="w-4 h-px bg-[var(--line)]" />
-                <span>{FEATURED.date}</span>
+                <span>{featured.date}</span>
               </div>
             </div>
           </div>
 
-          {/* Right: image */}
           <div className="md:col-span-6 rise" style={{ animationDelay: "120ms" }}>
             <div className="relative zoom-wrap aspect-[4/5] bg-[var(--paper-2)]">
               <img
-                src={FEATURED.cover}
-                alt="Featured essay cover"
+                src={featured.cover}
+                alt={featured.title}
                 className="w-full h-full object-cover"
               />
               <div className="absolute top-4 left-4 bg-[var(--paper)] px-3 py-1.5 text-[10px] tracking-[0.3em] uppercase">

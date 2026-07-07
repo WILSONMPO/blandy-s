@@ -1,23 +1,44 @@
 import React, { useState } from "react";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { subscribeEmail } from "../api";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
-  const [done, setDone] = useState(false);
+  const [status, setStatus] = useState({ state: "idle", message: "" });
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (!email) return;
+    setStatus({ state: "loading", message: "" });
     try {
-      const list = JSON.parse(localStorage.getItem("mom_subs") || "[]");
-      list.push({ email, at: new Date().toISOString() });
-      localStorage.setItem("mom_subs", JSON.stringify(list));
-    } catch (_) {}
-    setDone(true);
-    setTimeout(() => {
-      setEmail("");
-      setDone(false);
-    }, 3500);
+      const res = await subscribeEmail(email);
+      if (res?.status === "already_subscribed") {
+        setStatus({
+          state: "success",
+          message: "You’re already on the list — thank you.",
+        });
+      } else {
+        setStatus({
+          state: "success",
+          message: "Welcome. The next letter arrives Sunday.",
+        });
+      }
+      try {
+        const list = JSON.parse(localStorage.getItem("mom_subs") || "[]");
+        list.push({ email, at: new Date().toISOString() });
+        localStorage.setItem("mom_subs", JSON.stringify(list));
+      } catch (_) {}
+      setTimeout(() => {
+        setEmail("");
+        setStatus({ state: "idle", message: "" });
+      }, 4500);
+    } catch (err) {
+      const detail =
+        err?.response?.data?.detail?.toString?.() ||
+        "Something went wrong. Please try again.";
+      setStatus({ state: "error", message: detail });
+      setTimeout(() => setStatus({ state: "idle", message: "" }), 4500);
+    }
   };
 
   return (
@@ -54,19 +75,27 @@ const Newsletter = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   className="flex-1 bg-transparent py-3 outline-none text-lg font-serif placeholder:text-[var(--paper)]/30 text-[var(--paper)]"
+                  disabled={status.state === "loading"}
                 />
                 <button
                   type="submit"
-                  className="flex items-center gap-2 pb-3 text-xs tracking-[0.3em] uppercase text-[var(--paper)] hover:text-[var(--accent)] transition-colors"
+                  disabled={status.state === "loading"}
+                  className="flex items-center gap-2 pb-3 text-xs tracking-[0.3em] uppercase text-[var(--paper)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
                 >
-                  <span>Subscribe</span>
+                  <span>{status.state === "loading" ? "Sending…" : "Subscribe"}</span>
                   <ArrowRight size={14} strokeWidth={1.5} />
                 </button>
               </div>
-              {done && (
+              {status.state === "success" && (
                 <div className="absolute -bottom-10 left-0 flex items-center gap-2 text-[var(--accent)] text-sm font-serif italic rise">
                   <CheckCircle2 size={16} strokeWidth={1.5} />
-                  <span>Welcome. The next letter arrives Sunday.</span>
+                  <span>{status.message}</span>
+                </div>
+              )}
+              {status.state === "error" && (
+                <div className="absolute -bottom-10 left-0 flex items-center gap-2 text-red-300 text-sm font-serif italic rise">
+                  <AlertCircle size={16} strokeWidth={1.5} />
+                  <span>{status.message}</span>
                 </div>
               )}
               <p className="text-[11px] tracking-[0.2em] uppercase text-[var(--paper)]/40 mt-6">

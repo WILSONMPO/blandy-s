@@ -1,12 +1,26 @@
-import React from "react";
-import { EDITORS_PICKS, AUTHOR } from "../mock";
+import React, { useEffect, useState } from "react";
+import { EDITORS_PICKS as FALLBACK, AUTHOR } from "../mock";
 import { ArrowRight, Quote } from "lucide-react";
+import { fetchEditorsPicks } from "../api";
 
 const AuthorAndPicks = () => {
+  const [picks, setPicks] = useState(FALLBACK);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchEditorsPicks()
+      .then((data) => {
+        if (mounted && Array.isArray(data) && data.length) setPicks(data);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <section id="about" className="max-w-[1400px] mx-auto px-6 md:px-10 py-20 md:py-28">
       <div className="grid md:grid-cols-12 gap-10 md:gap-16">
-        {/* Author */}
         <div className="md:col-span-7">
           <p className="text-[11px] tracking-[0.35em] uppercase text-[var(--accent)] mb-6">The Writer</p>
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-8 items-start">
@@ -47,7 +61,6 @@ const AuthorAndPicks = () => {
             </div>
           </div>
 
-          {/* Pull quote */}
           <div className="mt-16 relative pl-10 md:pl-16">
             <Quote size={40} strokeWidth={1} className="absolute -left-1 top-0 text-[var(--accent)]" />
             <p className="font-serif italic text-2xl md:text-4xl leading-[1.2] text-[var(--ink)] max-w-2xl">
@@ -59,7 +72,6 @@ const AuthorAndPicks = () => {
           </div>
         </div>
 
-        {/* Editor's picks */}
         <aside className="md:col-span-5">
           <div className="sticky top-32 border-l border-[var(--line)] pl-8">
             <p className="text-[11px] tracking-[0.35em] uppercase text-[var(--accent)] mb-6">Editor’s Picks</p>
@@ -67,8 +79,8 @@ const AuthorAndPicks = () => {
               Essays we keep returning to.
             </h3>
             <ol className="space-y-8">
-              {EDITORS_PICKS.map((p, i) => (
-                <li key={p.id}>
+              {picks.slice(0, 6).map((p, i) => (
+                <li key={p.id || p.slug}>
                   <a href="#" className="group flex items-start gap-6">
                     <span className="font-mono text-xs text-[var(--muted)] mt-2">0{i + 1}</span>
                     <div className="flex-1">
