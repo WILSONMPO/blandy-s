@@ -700,7 +700,7 @@
 
     <div class="video-grid">
       <div class="vcard" data-video>
-        <video muted loop playsinline preload="metadata" src="https://customer-assets.emergentagent.com/job_f01b84a2-d792-4167-aaaf-92014431db57/artifacts/lcdd0hhs_IMG_0802.MP4"></video>
+        <video muted loop playsinline preload="metadata" src="https://customer-assets.emergentagent.com/job_premium-reads-15/artifacts/adl8ah2t_IMG_0802.MP4"></video>
         <div class="grad"></div>
         <div class="top-label">FIELD NOTE &middot; 01</div>
         <button class="mute-btn" data-mute aria-label="Toggle mute">
@@ -719,7 +719,7 @@
       </div>
 
       <div class="vcard" data-video>
-        <video muted loop playsinline preload="metadata" src="https://customer-assets.emergentagent.com/job_f01b84a2-d792-4167-aaaf-92014431db57/artifacts/vc92qx2i_IMG_0803.MP4"></video>
+        <video muted loop playsinline preload="metadata" src="https://customer-assets.emergentagent.com/job_premium-reads-15/artifacts/dceno7bq_IMG_0803.MP4"></video>
         <div class="grad"></div>
         <div class="top-label">FIELD NOTE &middot; 02</div>
         <button class="mute-btn" data-mute aria-label="Toggle mute">
@@ -970,6 +970,9 @@
     card.addEventListener('click', function(e){
       if (e.target.closest('[data-mute]')) return;
       if (video.paused) {
+        // User initiated play — unmute so audio plays
+        video.muted = false;
+        muteIcon.innerHTML = unmutedSVG;
         video.play();
         card.classList.add('playing');
       } else {

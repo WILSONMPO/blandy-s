@@ -10,6 +10,9 @@ const VideoCard = ({ video, index }) => {
   const toggle = () => {
     if (!ref.current) return;
     if (ref.current.paused) {
+      // User clicked play — safe to unmute (user gesture allows audio)
+      ref.current.muted = false;
+      setMuted(false);
       ref.current.play();
       setPlaying(true);
     } else {

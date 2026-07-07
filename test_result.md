@@ -191,6 +191,110 @@ frontend:
           Newsletter posts to /api/subscribe with success/error UI states.
           Falls back to mock data if API fails so page never appears empty.
 
+  - task: "Video Section — audio plays when user clicks play"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/VideoSection.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported: 'on the site these audio do not have voice (can't hear nothing)'. Videos in the Field Notes section were muted by default (browser autoplay policy) and never got unmuted when user clicked play."
+      - working: "NA"
+        agent: "main"
+        comment: |
+          FIX APPLIED:
+          1. Updated video src URLs in /app/frontend/src/mock.js to the new
+             re-uploaded assets:
+               - https://customer-assets.emergentagent.com/job_premium-reads-15/artifacts/adl8ah2t_IMG_0802.MP4
+               - https://customer-assets.emergentagent.com/job_premium-reads-15/artifacts/dceno7bq_IMG_0803.MP4
+             Verified both contain a valid AAC audio track via mp4 atom inspection.
+          2. In VideoSection.jsx `toggle()` handler: when the video is paused
+             and the user clicks to play, we now set `video.muted = false` and
+             update local muted state to false BEFORE calling play(). Because
+             this happens inside a user gesture, the browser allows audio.
+          3. The mute button still works to toggle audio on/off after playback
+             starts.
+          Test the following on https://premium-reads-15.preview.emergentagent.com :
+            a. Scroll to the "Field notes, on camera" section.
+            b. Click on the first video card (any part of it that is NOT the
+               top-right mute button). Verify:
+                - The play-overlay disappears (video starts playing).
+                - The <video> element's muted property is false.
+                - The <video> element's currentTime advances beyond 0.
+                - The mute button icon now shows a "sound on" (unmuted) icon.
+            c. Repeat for the second video card.
+            d. Click the mute button (top-right of a playing video). Verify
+               muted flips to true and icon reflects it.
+            e. Click the card body again to pause. Verify video pauses.
+      - working: false
+        agent: "testing"
+        comment: |
+          ❌ CRITICAL BUG - VIDEOS NOT PLAYING
+          
+          Comprehensive testing completed on both React app and static HTML page.
+          
+          **What's Working:**
+          ✅ Video src URLs are correct (both point to new job_premium-reads-15 URLs)
+          ✅ Video files are accessible (verified via curl - both return HTTP 200)
+          ✅ Unmute logic works (muted property changes from true to false on click)
+          ✅ Volume is set to 1
+          
+          **CRITICAL FAILURES:**
+          ❌ Videos do NOT play when clicked (paused=True after click)
+          ❌ currentTime remains at 0 (videos not advancing)
+          ❌ readyState is 0 (HAVE_NOTHING - no data loaded)
+          ❌ Browser console errors: "REQUEST FAILED: [video URLs] - net::ERR_ABORTED"
+          ❌ Red screen error: "The element has no supported sources"
+          ❌ Webpack dev server error overlay blocks UI interactions
+          
+          **Root Cause:**
+          The video.play() call in VideoSection.jsx (line 16) is failing because:
+          1. The video hasn't loaded enough data yet (readyState=0)
+          2. play() returns a rejected Promise when called before video is ready
+          3. The unhandled promise rejection causes browser to abort video requests
+          4. This results in "The element has no supported sources" error
+          
+          **Required Fix:**
+          The toggle() function needs to:
+          1. Handle the play() Promise properly (await or .catch())
+          2. Wait for video to have sufficient data before calling play()
+          3. Add error handling for play() failures
+          
+          Example fix:
+          ```javascript
+          const toggle = async () => {
+            if (!ref.current) return;
+            if (ref.current.paused) {
+              ref.current.muted = false;
+              setMuted(false);
+              try {
+                await ref.current.play();
+                setPlaying(true);
+              } catch (err) {
+                console.error('Play failed:', err);
+                // Optionally revert muted state
+              }
+            } else {
+              ref.current.pause();
+              setPlaying(false);
+            }
+          };
+          ```
+          
+          Same issue exists in both React app and static HTML page.
+          
+          Test Results:
+          - React App Video 1: ❌ Not playing (readyState=0, paused=true)
+          - React App Video 2: ❌ Not playing (readyState=0, paused=true)
+          - Static HTML Video 1: ❌ Not playing (readyState=0, paused=true)
+          - Static HTML Video 2: ❌ Not playing (readyState=0, paused=true)
+          
+          Screenshots captured showing error state.
+
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
@@ -199,7 +303,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Posts CMS + Newsletter Subscriptions API"
+    - "Video Section — audio plays when user clicks play"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -210,3 +314,20 @@ agent_communication:
       Backend implemented. Please test all endpoints listed under the
       "Posts CMS + Newsletter Subscriptions API" task. Use REACT_APP_BACKEND_URL
       from /app/frontend/.env prefixed with /api. Do not modify env files.
+  - agent: "main"
+    message: |
+      Bug fix — video audio: user reported the videos in Field Notes had no
+      audible sound. Fixed VideoSection.jsx to unmute the <video> element
+      when the user clicks to play (user gesture allows audio playback).
+      Also swapped both video src URLs to the newly re-uploaded MP4s. Please
+      verify audio is actually audible on click-to-play, mute button still
+      toggles, and pause still works.
+  - agent: "testing"
+    message: |
+      ❌ CRITICAL: Video playback is completely broken. The videos do NOT play
+      when clicked. The unmute logic works (muted changes to false), but the
+      play() call is failing with unhandled promise rejection. Browser console
+      shows "net::ERR_ABORTED" for video requests and "The element has no
+      supported sources" error. The video.play() call needs proper async/await
+      handling and error catching. See detailed findings in status_history.
+      This is a HIGH PRIORITY issue that blocks the entire video feature.

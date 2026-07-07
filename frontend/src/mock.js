@@ -123,14 +123,14 @@ export const VIDEOS = [
     id: "v1",
     title: "On Softness as Strategy",
     description: "A short field note on why the loudest advice usually ages the worst.",
-    src: "https://customer-assets.emergentagent.com/job_f01b84a2-d792-4167-aaaf-92014431db57/artifacts/lcdd0hhs_IMG_0802.MP4",
+    src: "https://customer-assets.emergentagent.com/job_premium-reads-15/artifacts/adl8ah2t_IMG_0802.MP4",
     duration: "1:12",
   },
   {
     id: "v2",
     title: "A Note on Beginning Again",
     description: "On the strange grief of starting over — and why it is almost always the right thing to do.",
-    src: "https://customer-assets.emergentagent.com/job_f01b84a2-d792-4167-aaaf-92014431db57/artifacts/vc92qx2i_IMG_0803.MP4",
+    src: "https://customer-assets.emergentagent.com/job_premium-reads-15/artifacts/dceno7bq_IMG_0803.MP4",
     duration: "0:58",
   },
 ];
