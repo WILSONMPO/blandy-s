@@ -700,7 +700,7 @@
 
     <div class="video-grid">
       <div class="vcard" data-video>
-        <video muted loop playsinline preload="metadata" src="https://customer-assets.emergentagent.com/job_premium-reads-15/artifacts/adl8ah2t_IMG_0802.MP4"></video>
+        <video muted loop playsinline preload="auto" src="https://customer-assets.emergentagent.com/job_premium-reads-15/artifacts/adl8ah2t_IMG_0802.MP4"></video>
         <div class="grad"></div>
         <div class="top-label">FIELD NOTE &middot; 01</div>
         <button class="mute-btn" data-mute aria-label="Toggle mute">
@@ -719,7 +719,7 @@
       </div>
 
       <div class="vcard" data-video>
-        <video muted loop playsinline preload="metadata" src="https://customer-assets.emergentagent.com/job_premium-reads-15/artifacts/dceno7bq_IMG_0803.MP4"></video>
+        <video muted loop playsinline preload="auto" src="https://customer-assets.emergentagent.com/job_premium-reads-15/artifacts/dceno7bq_IMG_0803.MP4"></video>
         <div class="grad"></div>
         <div class="top-label">FIELD NOTE &middot; 02</div>
         <button class="mute-btn" data-mute aria-label="Toggle mute">
@@ -967,14 +967,31 @@
     var mutedSVG = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
     var unmutedSVG = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
 
-    card.addEventListener('click', function(e){
+    card.addEventListener('click', async function(e){
       if (e.target.closest('[data-mute]')) return;
       if (video.paused) {
         // User initiated play — unmute so audio plays
         video.muted = false;
         muteIcon.innerHTML = unmutedSVG;
-        video.play();
-        card.classList.add('playing');
+        try {
+          if (video.readyState < 2) {
+            await new Promise(function(resolve){
+              var onReady = function(){ video.removeEventListener('loadeddata', onReady); resolve(); };
+              video.addEventListener('loadeddata', onReady, { once: true });
+              try { video.load(); } catch(_){}
+            });
+          }
+          await video.play();
+          card.classList.add('playing');
+        } catch (err) {
+          // Fallback: play muted if browser still blocks audio
+          try {
+            video.muted = true;
+            muteIcon.innerHTML = mutedSVG;
+            await video.play();
+            card.classList.add('playing');
+          } catch(_) {}
+        }
       } else {
         video.pause();
         card.classList.remove('playing');

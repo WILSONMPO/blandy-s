@@ -7,16 +7,36 @@ const VideoCard = ({ video, index }) => {
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(true);
 
-  const toggle = () => {
-    if (!ref.current) return;
-    if (ref.current.paused) {
+  const toggle = async () => {
+    const v = ref.current;
+    if (!v) return;
+    if (v.paused) {
       // User clicked play — safe to unmute (user gesture allows audio)
-      ref.current.muted = false;
+      v.muted = false;
       setMuted(false);
-      ref.current.play();
-      setPlaying(true);
+      try {
+        if (v.readyState < 2) {
+          await new Promise((resolve) => {
+            const onReady = () => { v.removeEventListener("loadeddata", onReady); resolve(); };
+            v.addEventListener("loadeddata", onReady, { once: true });
+            try { v.load(); } catch (_) { /* ignore */ }
+          });
+        }
+        await v.play();
+        setPlaying(true);
+      } catch (err) {
+        // Fallback: try muted play (some browsers still block audio autoplay)
+        try {
+          v.muted = true;
+          setMuted(true);
+          await v.play();
+          setPlaying(true);
+        } catch (_) {
+          setPlaying(false);
+        }
+      }
     } else {
-      ref.current.pause();
+      v.pause();
       setPlaying(false);
     }
   };
@@ -36,6 +56,7 @@ const VideoCard = ({ video, index }) => {
         muted={muted}
         loop
         playsInline
+        preload="auto"
         className="w-full h-full object-cover"
       />
       {/* Overlay */}
