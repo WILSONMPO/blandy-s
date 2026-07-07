@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { EDITORS_PICKS as FALLBACK, AUTHOR } from "../mock";
-import { ArrowRight, Quote } from "lucide-react";
+import { ArrowRight, Quote, Youtube, Users } from "lucide-react";
 import { fetchEditorsPicks } from "../api";
 
 const AuthorAndPicks = () => {
@@ -58,6 +58,32 @@ const AuthorAndPicks = () => {
                   Podcast Host
                 </span>
               </div>
+
+              {/* YouTube channel card */}
+              <a
+                href={AUTHOR.youtube}
+                target="_blank"
+                rel="noreferrer"
+                className="group mt-8 flex items-center gap-5 bg-[var(--paper-2)] border border-[var(--line)] px-5 py-4 hover:bg-[var(--ink)] hover:text-[var(--paper)] transition-colors"
+              >
+                <div className="w-12 h-12 rounded-full bg-[var(--accent)] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Youtube size={20} strokeWidth={1.75} className="text-[var(--paper)]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] tracking-[0.3em] uppercase opacity-70">Subscribe on YouTube</p>
+                  <p className="font-serif text-lg leading-tight truncate">
+                    @blandinamashala <em className="italic text-[var(--accent)] group-hover:text-[var(--paper)]">— Mind Over Matter</em>
+                  </p>
+                  <p className="text-[11px] tracking-[0.2em] uppercase opacity-60 mt-1 flex items-center gap-1.5">
+                    <Users size={11} strokeWidth={1.5} /> Weekly episodes
+                  </p>
+                </div>
+                <ArrowRight
+                  size={18}
+                  strokeWidth={1.5}
+                  className="shrink-0 group-hover:translate-x-1 transition-transform"
+                />
+              </a>
             </div>
           </div>
 

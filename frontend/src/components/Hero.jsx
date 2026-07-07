@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
-import { FEATURED as FALLBACK } from "../mock";
+import { ArrowRight, Youtube } from "lucide-react";
+import { FEATURED as FALLBACK, AUTHOR } from "../mock";
 import { fetchFeatured } from "../api";
 
 const Hero = () => {
@@ -51,7 +51,7 @@ const Hero = () => {
             <p className="font-serif text-lg md:text-xl leading-relaxed text-[var(--ink-2)] max-w-xl mt-8">
               {featured.dek || featured.excerpt}
             </p>
-            <div className="flex items-center gap-6 mt-10">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-4 mt-10">
               <a
                 href="#latest"
                 className="group inline-flex items-center gap-3 text-xs tracking-[0.3em] uppercase text-[var(--ink)]"
@@ -62,6 +62,15 @@ const Hero = () => {
                   strokeWidth={1.5}
                   className="group-hover:translate-x-1 transition-transform"
                 />
+              </a>
+              <a
+                href={AUTHOR.youtube}
+                target="_blank"
+                rel="noreferrer"
+                className="group inline-flex items-center gap-2.5 bg-[var(--ink)] text-[var(--paper)] px-5 py-3 text-[11px] tracking-[0.3em] uppercase hover:bg-[var(--accent)] transition-colors"
+              >
+                <Youtube size={16} strokeWidth={1.75} />
+                <span>Watch on YouTube</span>
               </a>
               <div className="text-[11px] tracking-[0.25em] uppercase text-[var(--muted)] flex items-center gap-2">
                 <span>{featured.readTime}</span>

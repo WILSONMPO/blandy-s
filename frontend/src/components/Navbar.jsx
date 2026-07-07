@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Menu, Search, X } from "lucide-react";
-import { CATEGORIES } from "../mock";
+import { Menu, Search, X, Youtube } from "lucide-react";
+import { CATEGORIES, AUTHOR } from "../mock";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -41,6 +41,16 @@ const Navbar = () => {
           </a>
 
           <div className="flex items-center gap-4">
+            <a
+              href={AUTHOR.youtube}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="YouTube channel"
+              className="group flex items-center gap-2 text-[var(--ink)] hover:text-[var(--accent)] transition-colors"
+            >
+              <Youtube size={18} strokeWidth={1.5} />
+              <span className="hidden md:inline text-[10px] tracking-[0.25em] uppercase">YouTube</span>
+            </a>
             <button className="text-[var(--ink)] hover:text-[var(--accent)] transition-colors" aria-label="Search">
               <Search size={18} strokeWidth={1.5} />
             </button>

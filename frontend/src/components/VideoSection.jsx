@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
-import { Play, Pause, VolumeX, Volume2 } from "lucide-react";
-import { VIDEOS } from "../mock";
+import { Play, Pause, VolumeX, Volume2, Youtube, ArrowUpRight } from "lucide-react";
+import { VIDEOS, AUTHOR } from "../mock";
 
 const VideoCard = ({ video, index }) => {
   const ref = useRef(null);
@@ -105,6 +105,37 @@ const VideoSection = () => {
             <VideoCard key={v.id} video={v} index={i} />
           ))}
         </div>
+
+        {/* Watch on YouTube CTA */}
+        <a
+          href={AUTHOR.youtube}
+          target="_blank"
+          rel="noreferrer"
+          className="group mt-12 md:mt-16 relative overflow-hidden block border border-[var(--line)] bg-[var(--paper)] hover:bg-[var(--ink)] hover:text-[var(--paper)] transition-colors"
+        >
+          <div className="grid md:grid-cols-12 gap-6 items-center px-6 md:px-10 py-8 md:py-10">
+            <div className="md:col-span-1 flex items-center justify-start md:justify-center">
+              <div className="w-14 h-14 rounded-full bg-[var(--accent)] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Youtube size={22} strokeWidth={1.75} className="text-[var(--paper)]" />
+              </div>
+            </div>
+            <div className="md:col-span-8">
+              <p className="text-[11px] tracking-[0.3em] uppercase text-[var(--accent)] mb-2">The Full Archive</p>
+              <h3 className="font-serif text-3xl md:text-4xl leading-tight tracking-[-0.01em]">
+                Watch full episodes on <em className="italic">YouTube</em>.
+              </h3>
+              <p className="font-serif text-base md:text-lg mt-2 opacity-80">
+                Every conversation, interview and long-form episode of Mind Over Matter — subscribe for weekly uploads.
+              </p>
+            </div>
+            <div className="md:col-span-3 flex md:justify-end">
+              <span className="inline-flex items-center gap-2 text-xs tracking-[0.3em] uppercase border-b border-current pb-0.5">
+                Visit channel
+                <ArrowUpRight size={14} strokeWidth={1.5} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </span>
+            </div>
+          </div>
+        </a>
       </div>
     </section>
   );
