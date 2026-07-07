@@ -1,42 +1,8 @@
-import React from "react";
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import Marquee from "./components/Marquee";
-import LatestPosts from "./components/LatestPosts";
-import Manifesto from "./components/Manifesto";
-import VideoSection from "./components/VideoSection";
-import AuthorAndPicks from "./components/AuthorAndPicks";
-import Newsletter from "./components/Newsletter";
-import Footer from "./components/Footer";
-import { Toaster } from "./components/ui/toaster";
-
-const Home = () => (
-  <div className="min-h-screen bg-[var(--paper)] grain">
-    <Navbar />
-    <Hero />
-    <Marquee />
-    <LatestPosts />
-    <Manifesto />
-    <VideoSection />
-    <AuthorAndPicks />
-    <Newsletter />
-    <Footer />
-  </div>
-);
-
+// React app intentionally renders nothing.
+// The entire visible site is served from /public/index.html using pure HTML, CSS
+// and a small amount of vanilla JavaScript — no framework, no build step needed.
 function App() {
-  return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </BrowserRouter>
-      <Toaster />
-    </div>
-  );
+  return null;
 }
 
 export default App;
